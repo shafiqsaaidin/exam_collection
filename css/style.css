@@ -1,0 +1,19 @@
+.wrapper {
+  padding-left: 300px;
+}
+
+.wrapper-container {
+  padding: 20px;
+}
+
+/* pie chart responsive */
+.chart-container {
+  height: 500px !important;
+}
+
+
+@media only screen and (max-width : 992px) {
+  .wrapper {
+    padding-left: 0;
+  }
+}
