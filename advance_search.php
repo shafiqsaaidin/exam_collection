@@ -5,24 +5,31 @@
   include 'database.php';
   require 'pdfparser-master/vendor/autoload.php';
 
-  $output = '';
-
-  // search text function
-  function textSearch($doc, $word) {
-    $parser = new \Smalot\PdfParser\Parser();
-    $pdf    = $parser->parseFile($doc);
-    
-    $text = $pdf->getText();
-    
-    return substr_count($text, $word);
-  }
+  $string = array();
 
   // search query
   if (filter_has_var(INPUT_POST, 'search')) {
+    $parser = new \Smalot\PdfParser\Parser();
+
     $file = $_POST['file'];
-    $keyword = $_POST['keyword'];
+    $keyword1 = mysqli_real_escape_string($con, $_POST['keyword1']);
+    $keyword2 = mysqli_real_escape_string($con, $_POST['keyword2']);
+    $keyword3 = mysqli_real_escape_string($con, $_POST['keyword3']);
+    $keyword4 = mysqli_real_escape_string($con, $_POST['keyword4']);
+    $keyword5 = mysqli_real_escape_string($con, $_POST['keyword5']);
     
-    $output = textSearch($file, $keyword);
+    
+    $pdf    = $parser->parseFile($file);
+    
+    $text = $pdf->getText();
+    
+    $words = array($keyword1 , $keyword2 , $keyword3, $keyword4, $keyword5);
+
+    foreach ($words as $word) {
+      $string[] = substr_count($text, $word);
+    }
+
+    // echo $string;
   }
 ?>
 
@@ -47,20 +54,34 @@
             </select>
           </div>
           
-          <div class="input-field">
-            <input placeholder="Enter Keyword" type="text" name="keyword">
+          <div class="row">
+            <div class="input-field col s12 l4">
+              <input placeholder="Keyword 1" type="text" name="keyword1">
+            </div>
+            <div class="input-field col s12 l4">
+              <input placeholder="Keyword 2" type="text" name="keyword2">
+            </div>
+            <div class="input-field col s12 l4">
+              <input placeholder="Keyword 3" type="text" name="keyword3">
+            </div>
+          </div>
+          <div class="row">
+            <div class="input-field col s12 l6">
+              <input placeholder="Keyword 4" type="text" name="keyword4">
+            </div>
+            <div class="input-field col s12 l6">
+              <input placeholder="Keyword 5" type="text" name="keyword5">
+            </div>
           </div>
           <button type="submit" class="btn blue right" name="search">search</button>
         </form>
         <br><br>
-        <h5>Search Result</h5>
-        <?php if ($output != ''): ?>
+        
+        <?php if (!empty($string)): ?>
+          <h5>Search Result</h5>
           <ul class="collection">
             <li class="collection-item">File: <?php echo $_POST['file']; ?></li>
-            <li class="collection-item">Word: <?php echo $_POST['keyword']; ?></li>
-            <li class="collection-item">Result: <?php echo $output; ?></li>
           </ul>
-          <p></p>
         <?php else: ?>
           <p>No data</p>
         <?php endif ?>

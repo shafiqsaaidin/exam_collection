@@ -61,17 +61,22 @@
             <input id="year" type="number" name="year" value="<?php echo $row['year']; ?>">
             <label for="year">Year</label>
           </div>
-          <div class="file-field input-field col s6">
-            <div class="btn blue white-text">
-              <span>Choose</span>
-              <input disabled type="file" name="file">
-            </div>
-            <div class="file-path-wrapper">
-              <input class="file-path validate" type="text" value="<?php echo $row['path']; ?>">
-            </div>
+
+          <div class="input-field col s6">
+            <input id="topic" type="text" name="topic" value="<?php echo $row['topic']; ?>">
+            <label for="topic">Topic</label>
           </div>
         </div>
-
+        <div class="file-field input-field">
+          <div class="btn blue white-text">
+            <span>Choose</span>
+            <input disabled type="file" name="file">
+          </div>
+          <div class="file-path-wrapper">
+            <input class="file-path validate" type="text" value="<?php echo $row['path']; ?>">
+          </div>
+        </div>
+        <br>
         <a href="collections.php" class="btn white black-text">Back</a>
         <button type="submit" class="modal-close waves-effect btn blue white-text right" name="update">Update</button>
       </form>

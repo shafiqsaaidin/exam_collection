@@ -4,26 +4,41 @@
   include './sidenav.php';
   include './database.php';
   
-  // Delete file
-  if (isset($_POST['delete'])) {
-    $id = mysqli_real_escape_string($con, $_POST['doc_id']);
-    $sql = "DELETE FROM `document` WHERE `id`='$id'";
+  // Save file
+  if (isset($_POST['save'])) {
+    // use session
+    // $user_ud = $_SESSION['u_id'];
+    $user_id = '1';
+    $doc_id = mysqli_real_escape_string($con, $_POST['doc_id']);
+    $query = mysqli_query($con, "SELECT * FROM `favourite` WHERE `user_id`=$user_id AND `doc_id`=$doc_id");
+    $sql = "INSERT INTO `favourite` (`user_id`, `doc_id`, `date`)
+            VALUE ('$user_id', '$doc_id', CURRENT_TIMESTAMP)";
 
-    if ($con->query($sql) === TRUE) {
+    if (mysqli_num_rows($query) > 0){
       echo "
       <script>
         $(function(){
-          M.toast({html: 'Delete completed'})
+          M.toast({html: 'Data exist'})
         });  
       </script>";
     } else {
-      echo "
-      <script>
-        $(function(){
-          M.toast({html: 'Error while delete!'})
-        });  
-      </script>";
+      if ($con->query($sql) === TRUE) {
+        echo "
+        <script>
+          $(function(){
+            M.toast({html: 'Save completed'})
+          });  
+        </script>";
+      } else {
+        echo "
+        <script>
+          $(function(){
+            M.toast({html: 'Error while saving!'})
+          });  
+        </script>";
+      }
     }
+
   }
 
   // $con->close();
@@ -67,12 +82,7 @@
               <td>
                 <form action="" method="POST">
                   <input type="hidden" name="doc_id" value="<?php echo $row['id']; ?>">
-                  <div class="switch">
-                    <label>
-                      <input type="checkbox" class="filled-in"/>
-                      <span>Save</span>
-                    </label>
-                  </div>
+                  <button type="submit" name="save" class="btn-flat">save</button>
                 </form>
               </td>
             </tr>

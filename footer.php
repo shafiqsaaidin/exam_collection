@@ -27,10 +27,18 @@
         var myChart = new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: ["Software", "Design", "System", "Quality", "Process", "Plan"],
+                labels: [
+                  <?php foreach ($words as $x): ?>
+                    "<?php echo $x; ?>",
+                  <?php endforeach ?>
+                ],
                 datasets: [{
                     label: '# of Votes',
-                    data: [12, 19, 3, 5, 2, 3],
+                    data: [
+                      <?php foreach ($string as $y):?>
+                        "<?php echo $y?>",
+                      <?php endforeach ?>
+                    ],
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.2)',
                         'rgba(54, 162, 235, 0.2)',

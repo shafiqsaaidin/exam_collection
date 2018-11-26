@@ -9,6 +9,7 @@
     $name = mysqli_real_escape_string($con, $_POST['name']);
     $subject = mysqli_real_escape_string($con, $_POST['subject']);
     $year = mysqli_real_escape_string($con, $_POST['year']);
+    $topic = mysqli_real_escape_string($con, $_POST['topic']);
     $file = $_FILES['file'];
 
     // file properties
@@ -29,8 +30,8 @@
           $fileDestination = 'files/'.$fileNameNew;
 
           // sql query
-          $sql = "INSERT INTO `document` (name, subject, year, path, date)
-          VALUE ('$name', '$subject', '$year', '$fileDestination', CURRENT_TIMESTAMP)";
+          $sql = "INSERT INTO `document` (name, subject, year, path, topic, date)
+          VALUE ('$name', '$subject', '$year', '$fileDestination', '$topic', CURRENT_TIMESTAMP)";
 
           if ($con->query($sql) === TRUE) {
             echo "
@@ -71,22 +72,28 @@
   }
   
   // Delete file
-  if (isset($_POST['delete'])) {
-    $id = mysqli_real_escape_string($con, $_POST['doc_id']);
+  if (isset($_REQUEST['id'])) {
+    $id = mysqli_real_escape_string($con, $_REQUEST['id']);
     $sql = "DELETE FROM `document` WHERE `id`='$id'";
-
+    
     if ($con->query($sql) === TRUE) {
       echo "
       <script>
         $(function(){
-          M.toast({html: 'Delete completed'})
+          M.toast({html: 'Delete completed'});
+          setTimeout(function(){
+            window.location = 'collections.php';
+          }, 1000);
         });  
       </script>";
     } else {
       echo "
       <script>
         $(function(){
-          M.toast({html: 'Error while delete!'})
+          M.toast({html: 'Error while delete!'});
+          setTimeout(function(){
+            window.location = 'collections.php';
+          }, 1000);
         });  
       </script>";
     }
@@ -133,14 +140,20 @@
                   <input id="year" type="number" name="year">
                   <label for="year">Year</label>
                 </div>
-                <div class="file-field input-field col s6">
-                  <div class="btn blue white-text">
-                    <span>Choose</span>
-                    <input type="file" name="file">
-                  </div>
-                  <div class="file-path-wrapper">
-                    <input class="file-path validate" type="text" placeholder="Select your file">
-                  </div>
+
+                <div class="input-field col s6">
+                  <input id="topic" type="text" name="topic">
+                  <label for="topic">Topic</label>
+                </div>
+              </div>
+
+              <div class="file-field input-field">
+                <div class="btn blue white-text">
+                  <span>Choose</span>
+                  <input type="file" name="file">
+                </div>
+                <div class="file-path-wrapper">
+                  <input class="file-path validate" type="text" placeholder="Select your file">
                 </div>
               </div>
 
@@ -153,12 +166,13 @@
         </div>
       </div>
 
-      <table id="myTable" class="highlight">
+      <table id="myTable" class="striped">
         <thead class="blue white-text">
           <tr class="myHead">
             <th>#</th>
             <th>Name</th>
             <th>Subject</th>
+            <th>Topic</th>
             <th>Year</th>
             <th>Date Upload</th>
             <th>Uploaded by</th>
@@ -176,19 +190,17 @@
               <td><?php echo $i; $i++; ?></td>
               <td><a href="<?php echo $row['path']; ?>" target="_blank"><?php echo $row['name']; ?></a></td>
               <td><?php echo $row['subject']; ?></td>
+              <td><?php echo $row['topic']; ?></td>
               <td><?php echo $row['year']; ?></td>
               <td><?php echo $row['date']; ?></td>
               <td><?php echo $row['user_id']; ?></td>
-              <td>
-                <form action="" method="POST">
-                  <input type="hidden" name="doc_id" value="<?php echo $row['id']; ?>">
-                  <a href="file_edit.php?id=<?php echo $row['id']; ?>" class="tooltipped btn blue modal-trigger" data-position="top" data-tooltip="Edit">
-                    <i class="material-icons">edit</i>
-                  </a>
-                  <button type="submit" name="delete" onclick="return confirm(`Delete this file ?`);" class="tooltipped btn red" data-position="top" data-tooltip="Delete">
-                    <i class="material-icons">delete</i>
-                  </button>
-                </form>
+              <td class="right">
+                <a href="file_edit.php?id=<?php echo $row['id']; ?>" class="tooltipped modal-trigger" data-position="top" data-tooltip="Edit">
+                  <i class="material-icons blue-text">edit</i>
+                </a>
+                <a href="collections.php?id=<?php echo $row['id']; ?>" onclick="return confirm(`Delete this file ?`);" class="tooltipped" data-position="top" data-tooltip="Delete">
+                  <i class="material-icons red-text right">delete</i>
+                </a>
               </td>
             </tr>
           <?php endwhile ?>
