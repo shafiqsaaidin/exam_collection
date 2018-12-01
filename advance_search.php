@@ -5,93 +5,55 @@
   include 'database.php';
   require 'pdfparser-master/vendor/autoload.php';
 
-  $string = array();
+  // declare empty virable to store arrays of file
+  $pdf = '';
+  $output = array();
 
   // search query
   if (filter_has_var(INPUT_POST, 'search')) {
+    $keyword = mysqli_real_escape_string($con, $_POST['keyword']);
     $parser = new \Smalot\PdfParser\Parser();
 
-    $file = $_POST['file'];
-    $keyword1 = mysqli_real_escape_string($con, $_POST['keyword1']);
-    $keyword2 = mysqli_real_escape_string($con, $_POST['keyword2']);
-    $keyword3 = mysqli_real_escape_string($con, $_POST['keyword3']);
-    $keyword4 = mysqli_real_escape_string($con, $_POST['keyword4']);
-    $keyword5 = mysqli_real_escape_string($con, $_POST['keyword5']);
-    
-    
-    $pdf    = $parser->parseFile($file);
-    
-    $text = $pdf->getText();
-    
-    $words = array($keyword1 , $keyword2 , $keyword3, $keyword4, $keyword5);
+    $sql = "SELECT name, path, year FROM document";
+    $result = mysqli_query($con, $sql);
 
-    foreach ($words as $word) {
-      $string[] = substr_count($text, $word);
+    while ($row = mysqli_fetch_array($result)) {
+      $pdf = $parser->parseFile($row['path']);
+      $text = $pdf->getText();
+      $output[] = $row['name'] ." - " . $row['year'] . "<span class='blue white-text badge'>".substr_count($text, $keyword)."</span>"; 
     }
-
-    // echo $string;
   }
+    
 ?>
 
-  <div class="wrapper">
-    <div class="wrapper-container">
-      <div class="row">
-        <h5>Advance Search</h5>
-        <p>Search keyword in file</p>
-        <br>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
-          <div class="input-field">
-            <select class="browser-default" name="file">
-              <option value="" disabled selected>Choose your option</option>
-              <?php
-                $sql = "SELECT name, path FROM document";
-                $result = mysqli_query($con, $sql);
-
-                while ($row = mysqli_fetch_array($result)):
-              ?>
-                <option value="<?php echo $row['path']; ?>"><?php echo $row['name']; ?></option>
-              <?php endwhile ?>
-            </select>
-          </div>
-          
-          <div class="row">
-            <div class="input-field col s12 l4">
-              <input placeholder="Keyword 1" type="text" name="keyword1">
-            </div>
-            <div class="input-field col s12 l4">
-              <input placeholder="Keyword 2" type="text" name="keyword2">
-            </div>
-            <div class="input-field col s12 l4">
-              <input placeholder="Keyword 3" type="text" name="keyword3">
-            </div>
-          </div>
-          <div class="row">
-            <div class="input-field col s12 l6">
-              <input placeholder="Keyword 4" type="text" name="keyword4">
-            </div>
-            <div class="input-field col s12 l6">
-              <input placeholder="Keyword 5" type="text" name="keyword5">
-            </div>
-          </div>
-          <button type="submit" class="btn blue right" name="search">search</button>
-        </form>
-        <br><br>
-        
-        <?php if (!empty($string)): ?>
-          <h5>Search Result</h5>
-          <ul class="collection">
-            <li class="collection-item">File: <?php echo $_POST['file']; ?></li>
-          </ul>
-        <?php else: ?>
-          <p>No data</p>
-        <?php endif ?>
-        <div class="chart-container">
-          <canvas id="myChart" width="600" height="250"></canvas>
-        </div>
-        
+<div class="wrapper">
+  <div class="wrapper-container">
+    <h5>Search Keyword in all files</h5>
+    <br>
+    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
+      <div class="input-field">
+        <input id="keyword" type="text" name="keyword">
+        <label for="keyword">Keyword</label>
       </div>
-    </div>
+      <button type="submit" class="btn blue right" name="search">search</button>
+    </form>
+    <br>
+    <br>
+    <!-- Search Result -->
+    <?php if (!empty($output)): ?>
+
+      
+      <ul class="collection with-header">
+        <li class="collection-header blue white-text"><h5>Search Result : <span class="black-text"><?php echo $_POST['keyword']; ?></span></h5></li>
+        <?php foreach ($output as $x): ?>
+          <li class="collection-item"><?php echo $x; ?></li>
+        <?php endforeach ?>
+      </ul>
+    <?php else: ?>
+      <p>No data</p>
+    <?php endif ?>
   </div>
+</div>
 
 <?php 
   include './footer.php';
